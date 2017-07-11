@@ -535,6 +535,14 @@ int tactics_pi::Init(void)
 	for (int i = 0; i < COGRANGE; i++) m_COGRange[i] = NAN;
 
 	m_bTrueWind_available = false;
+
+    //branch currdir_calculation_test
+    mSinCurrDirTest = new DoubleExpSmooth(g_dalpha_currdir);
+    mCosCurrDirTest = new DoubleExpSmooth(g_dalpha_currdir);
+    m_ExpSmoothCurrDirTest = NAN;
+    m_ExpSmoothSinCurrDirTest = NAN;
+    m_ExpSmoothCosCurrDirTest = NAN;
+    m_CurrentDirectionTest = NAN;
 	//*****************
 	g_pFontTitle = new wxFont(10, wxFONTFAMILY_SWISS, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL);
 	g_pFontData = new wxFont(14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
@@ -4438,8 +4446,13 @@ void TacticsWindow::SetInstrumentList(wxArrayInt list)
 				getInstrumentCaption(id), OCPN_DBP_STC_HEEL, _T("%2.1f"));
 			break;
 		case ID_DBP_I_CURRDIR:
-			instrument = new TacticsInstrument_Single(this, wxID_ANY,
-				getInstrumentCaption(id), OCPN_DBP_STC_CURRDIR, _T("%2.0f"));
+			//instrument = new TacticsInstrument_Single(this, wxID_ANY,
+			//	getInstrumentCaption(id), OCPN_DBP_STC_CURRDIR, _T("%3.0f"));
+          //branch currdir_calculation_test
+            instrument = new TacticsInstrument_PerformanceSingle(this, wxID_ANY,
+              getInstrumentCaption(id), OCPN_DBP_STC_CURRDIR | OCPN_DBP_STC_CURRDIRTEST, _T("%2.0f"));
+            ((TacticsInstrument_PerformanceSingle *)instrument)->SetDisplayType(CURRDIRTEST);
+
 			break;
 		case ID_DBP_I_CURRSPD:
 			instrument = new TacticsInstrument_Single(this, wxID_ANY,
@@ -4634,7 +4647,11 @@ void tactics_pi::SetCalcVariables(int st, double value, wxString unit)
 	case OCPN_DBP_STC_CURRDIR:
 		m_CurrentDirection = value;
 		break;
-	case OCPN_DBP_STC_CURRSPD:
+        //branch currdir_calculation_test
+    case OCPN_DBP_STC_CURRDIRTEST:
+      m_CurrentDirectionTest = value;
+      break;
+    case OCPN_DBP_STC_CURRSPD:
 		m_ExpSmoothCurrSpd = value;
 		break;
 	case OCPN_DBP_STC_BRG:
@@ -4870,20 +4887,34 @@ void tactics_pi::CalculateCurrent(int st, double value, wxString unit)
 			m_ExpSmoothCosCurrDir = mCosCurrDir->GetSmoothVal(cos(rad));
 			m_CurrentDirection = (90. - (atan2(m_ExpSmoothSinCurrDir, m_ExpSmoothCosCurrDir)*180. / M_PI) + 360.);
 			while (m_CurrentDirection >= 360) m_CurrentDirection -= 360;
-			// temporary output of Currdir to file ...
-			//str = wxString::Format(_T("%.2f;%.2f\n"), currdir, m_CurrentDirection);
-			//out.WriteString(str);
+//branch currdir_calculation_test
+            // same as above for testing with currspd in sin/cos ... 
+            if (wxIsNaN(m_ExpSmoothCurrDirTest))
+              m_ExpSmoothCurrDirTest = currdir;
+
+            mSinCurrDirTest->SetAlpha(g_dalpha_currdir);
+            mCosCurrDirTest->SetAlpha(g_dalpha_currdir);
+            m_ExpSmoothSinCurrDirTest = mSinCurrDirTest->GetSmoothVal(currspd*sin(rad));
+            m_ExpSmoothCosCurrDirTest = mCosCurrDirTest->GetSmoothVal(currspd*cos(rad));
+            m_CurrentDirectionTest = (90. - (atan2(m_ExpSmoothSinCurrDirTest, m_ExpSmoothCosCurrDirTest)*180. / M_PI) + 360.);
+            while (m_CurrentDirectionTest >= 360) m_CurrentDirectionTest -= 360;
+
 		}
 		else{
 			m_CurrentDirection = NAN;
 			m_ExpSmoothCurrSpd = NAN;
+            //branch currdir_calculation_test
+            m_CurrentDirectionTest = NAN;
 		}
 		//distribute data to all instruments
 		for (size_t i = 0; i < m_ArrayOfTacticsWindow.GetCount(); i++) {
 			TacticsWindow *tactics_window = m_ArrayOfTacticsWindow.Item(i)->m_pTacticsWindow;
 			if (tactics_window){
-				tactics_window->SendSentenceToAllInstruments(OCPN_DBP_STC_CURRDIR, m_CurrentDirection, _T("\u00B0"));
-				tactics_window->SendSentenceToAllInstruments(OCPN_DBP_STC_CURRSPD, toUsrSpeed_Plugin(m_ExpSmoothCurrSpd, g_iDashSpeedUnit), getUsrSpeedUnit_Plugin(g_iDashSpeedUnit));
+              //branch currdir_calculation_test
+              tactics_window->SendSentenceToAllInstruments(OCPN_DBP_STC_CURRDIRTEST, m_CurrentDirectionTest, _T("\u00B0"));
+
+              tactics_window->SendSentenceToAllInstruments(OCPN_DBP_STC_CURRDIR, m_CurrentDirection, _T("\u00B0"));
+			  tactics_window->SendSentenceToAllInstruments(OCPN_DBP_STC_CURRSPD, toUsrSpeed_Plugin(m_ExpSmoothCurrSpd, g_iDashSpeedUnit), getUsrSpeedUnit_Plugin(g_iDashSpeedUnit));
 			}
 		}
 		// }

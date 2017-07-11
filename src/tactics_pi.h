@@ -234,7 +234,13 @@ private:
 	  double               alpha_currspd, alpha_CogHdt;
 	  double               m_ExpSmoothCurrSpd, m_ExpSmoothCurrDir,m_ExpSmoothSog;
 	  double               m_ExpSmoothSinCurrDir, m_ExpSmoothCosCurrDir;
-	  double               m_tempSmoothedLaylineCOG;
+//branch currdir_calculation_test
+      double               m_ExpSmoothSinCurrDirTest, m_ExpSmoothCosCurrDirTest, m_ExpSmoothCurrDirTest;
+      DoubleExpSmooth *mSinCurrDirTest;
+      DoubleExpSmooth *mCosCurrDirTest;
+      double          m_CurrentDirectionTest;
+
+      double               m_tempSmoothedLaylineCOG;
 	  double			   m_ExpSmoothDiffCogHdt;
 	  double               m_LaylineDegRange, m_COGRange[COGRANGE], m_ExpSmoothDegRange, m_alphaDeltaCog;
 	  double               m_LaylineSmoothedCog, m_ExpSmoothSinCog, m_ExpSmoothCosCog, m_alphaLaylineCog;

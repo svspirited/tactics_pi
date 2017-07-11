@@ -50,7 +50,7 @@ WX_DEFINE_ARRAY_DOUBLE(int, ArrayOfDouble);
 #define WINDSPEED 60
 
 enum{
-	POLARSPEED, POLARVMG, POLARTARGETVMG, POLARTARGETVMGANGLE, POLARCMG, POLARTARGETCMG, POLARTARGETCMGANGLE,TWAMARK
+	POLARSPEED, POLARVMG, POLARTARGETVMG, POLARTARGETVMGANGLE, POLARCMG, POLARTARGETCMG, POLARTARGETCMGANGLE,TWAMARK,CURRDIRTEST
 };
 struct TargetxMG{
 	double TargetAngle=0;
@@ -83,8 +83,10 @@ public:
 	double mTWA;
 	double mSTW;
 	double mCMG,mSOG,mCOG,mBRG,mHDT,mTWD,m_lat,m_lon;
-	wxString stwunit;
+    wxString stwunit;
 	int m_displaytype;
+    //branch currdir_calculation_test
+    double mCurrDir, mCurrDirTest;
 
 protected:
 	wxString          m_data;

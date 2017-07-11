@@ -73,6 +73,8 @@ TacticsInstrument_PerformanceSingle::TacticsInstrument_PerformanceSingle(wxWindo
 	mBRG = -1;
     mTWD = NAN;
 	stwunit = _T("");
+    //branch currdir_calculation_test
+    mCurrDir = mCurrDirTest = NAN;
 
 }
 /***********************************************************************************
@@ -189,6 +191,13 @@ void TacticsInstrument_PerformanceSingle::SetData(int st, double data, wxString 
             else if (st == OCPN_DBP_STC_TWD){
               mTWD = data;
             }
+            else if (st == OCPN_DBP_STC_CURRDIR){
+              mCurrDir = data;
+            }
+            else if (st == OCPN_DBP_STC_CURRDIRTEST){
+              mCurrDirTest = data;
+            }
+
             if (!GetSingleWaypoint(_T("TacticsWP"), m_pMark)) m_pMark = NULL;
             if (m_pMark && m_lat > 0 && m_lon > 0) {
                 double dist;
@@ -297,6 +306,13 @@ void TacticsInstrument_PerformanceSingle::SetData(int st, double data, wxString 
               else
                 m_data = _T("---");
             }
+            //branch currdir_calculation_test
+            else if (m_displaytype == CURRDIRTEST && !wxIsNaN(mCurrDir) && !wxIsNaN(mCurrDirTest)){
+              m_data = wxString::Format("%.0f", (double)mCurrDir) + _T("\u00B0") + _T(" / ") + wxString::Format("%.0f", (double)mCurrDirTest) + _T("\u00B0");
+            }
+            else
+              m_data = _T("--- / --- ");
+
 }
 /***********************************************************************************
 

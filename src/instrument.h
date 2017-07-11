@@ -94,11 +94,11 @@ enum
     OCPN_DBP_STC_TWD = 1 << 24,
 //    OCPN_DBP_STC_TWS2 = 1 << 25,
     OCPN_DBP_STC_RMBLAT = 1 << 25,//free not needed
-    OCPN_DBP_STC_BC = 1 << 26,
+    OCPN_DBP_STC_CURRDIRTEST = 1 << 26,//branch currdir_calculation_test
     //OCPN_DBP_STC_VLW1 = 1 << 26, // Trip Log
     //OCPN_DBP_STC_VLW2 = 1 << 27,  // Sum Log
     OCPN_DBP_STC_TWAMARK = 1 << 27,  // TWA to a Waypoint
-    OCPN_DBP_STC_MDA = 1 << 28,  // Barometic pressure
+    OCPN_DBP_STC_MDA = 1 << 28, // barometric pressure
     OCPN_DBP_STC_MCOG = 1 << 29,  // Magnetic Course over Ground
 	OCPN_DBP_STC_PITCH = 1 << 30, //Pitch
 	OCPN_DBP_STC_HEEL = 1 << 31//Heel
